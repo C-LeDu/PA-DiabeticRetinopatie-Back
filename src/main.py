@@ -1,6 +1,9 @@
+import cv2
+import numpy as np
 from flask import Flask
-from flask_restplus import Resource, Api, reqparse
 from flask_cors import CORS
+from flask_restplus import Resource, Api, reqparse
+from werkzeug.datastructures import FileStorage
 
 app = Flask(__name__)
 app.config['BUNDLE_ERRORS'] = True
@@ -13,6 +16,14 @@ data.add_argument('email', type=str, required=True, location='args')
 data.add_argument('psw', type=str, required=True, location='args')
 
 
+file_upload = reqparse.RequestParser()
+file_upload.add_argument('png_file',
+                         type=FileStorage,
+                         location='files',
+                         required=True,
+                         help='PNG file')
+
+
 @api.route('/signIn',  endpoint='with-parser')
 class SignIn(Resource):
     @api.expect(data)
@@ -20,6 +31,19 @@ class SignIn(Resource):
         args = data.parse_args(strict=True)
         print(args['email'] + " " + args['psw'])
         return {'token': 'token'}
+
+
+@api.route('/upload')
+class my_file_upload(Resource):
+    @api.expect(file_upload)
+    def post(self):
+        args = file_upload.parse_args()
+        if args['png_file'].mimetype == 'image/png':
+            npimg = np.fromstring(args['png_file'].read(), np.uint8)
+            img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
+        else:
+            print("nope")
+        return {'status': 'Done'}
 
 
 if __name__ == '__main__':
