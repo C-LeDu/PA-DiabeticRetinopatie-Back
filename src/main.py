@@ -3,6 +3,7 @@ import numpy as np
 from flask import Flask
 from flask_cors import CORS
 from flask_restplus import Resource, Api, reqparse
+from flask_restplus import abort
 from werkzeug.datastructures import FileStorage
 
 app = Flask(__name__)
@@ -39,10 +40,9 @@ class my_file_upload(Resource):
     def post(self):
         args = file_upload.parse_args()
         if args['png_file'].mimetype == 'image/png':
-            npimg = np.fromstring(args['png_file'].read(), np.uint8)
-            img = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
+            img = cv2.imdecode(np.fromstring(args['png_file'].read(), np.uint8), cv2.IMREAD_COLOR)
         else:
-            print("nope")
+            abort(400, 'error when get the png_file')
         return {'status': 'Done'}
 
 
