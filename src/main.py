@@ -21,12 +21,12 @@ data.add_argument('email', type=str, required=True, location='args')
 data.add_argument('psw', type=str, required=True, location='args')
 
 
-file_upload = reqparse.RequestParser()
-file_upload.add_argument('png_file',
-                         type=FileStorage,
-                         location='files',
-                         required=True,
-                         help='PNG file')
+image_file_upload = reqparse.RequestParser()
+image_file_upload.add_argument('image_file',
+                               type=FileStorage,
+                               location='files',
+                               required=True,
+                               help='image file')
 
 
 @api.route('/signIn',  endpoint='with-parser')
@@ -39,21 +39,23 @@ class SignIn(Resource):
 
 
 @api.route('/upload')
-class my_file_upload(Resource):
-    @api.expect(file_upload)
+class myFileUpload(Resource):
+    @api.expect(image_file_upload)
     def post(self):
-        args = file_upload.parse_args()
-        if args['png_file'].mimetype == 'image/png':
-            img = cv2.imdecode(np.fromstring(args['png_file'].read(), np.uint8), cv2.IMREAD_COLOR)
+        args = image_file_upload.parse_args()
+        if args['image_file'].mimetype == 'image/png' or args['image_file'].mimetype == 'image/jpeg':
+            ext = args['image_file'].mimetype.split('/')[1]
+            img = cv2.imdecode(np.fromstring(args['image_file'].read(), np.uint8), cv2.IMREAD_COLOR)
+            # Make all we need with model
             file = io.BytesIO()
-            Image.fromarray(img).save(file, 'png')
+            Image.fromarray(img).save(file, ext)
             file.seek(0)
             return send_file(file,
                              as_attachment=True,
-                             attachment_filename='annotated.png',
-                             mimetype='image/png')
+                             attachment_filename='annotate.' + ext,
+                             mimetype='image/' + ext)
         else:
-            abort(400, 'error when get the png_file')
+            abort(400, 'error when get the image file')
         return {'status': 'Done'}
 
 
