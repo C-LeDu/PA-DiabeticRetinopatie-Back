@@ -39,7 +39,7 @@ class SignIn(Resource):
 
 
 @api.route('/upload')
-class myFileUpload(Resource):
+class MyFileUpload(Resource):
     @api.expect(image_file_upload)
     def post(self):
         args = image_file_upload.parse_args()
