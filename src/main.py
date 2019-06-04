@@ -1,6 +1,10 @@
+import io
+
 import cv2
 import numpy as np
+from PIL import Image
 from flask import Flask
+from flask import send_file
 from flask_cors import CORS
 from flask_restplus import Resource, Api, reqparse
 from flask_restplus import abort
@@ -41,6 +45,13 @@ class my_file_upload(Resource):
         args = file_upload.parse_args()
         if args['png_file'].mimetype == 'image/png':
             img = cv2.imdecode(np.fromstring(args['png_file'].read(), np.uint8), cv2.IMREAD_COLOR)
+            file = io.BytesIO()
+            Image.fromarray(img).save(file, 'png')
+            file.seek(0)
+            return send_file(file,
+                             as_attachment=True,
+                             attachment_filename='annotated.png',
+                             mimetype='image/png')
         else:
             abort(400, 'error when get the png_file')
         return {'status': 'Done'}
