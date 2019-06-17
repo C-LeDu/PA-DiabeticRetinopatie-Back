@@ -42,16 +42,15 @@ class MyFileUpload(Resource):
     def post(self):
         args = image_file_upload.parse_args()
         if args['image_file'].mimetype == 'image/png' or args['image_file'].mimetype == 'image/jpeg':
-            ext = args['image_file'].mimetype.split('/')[1]
-            img = cv2.imdecode(np.fromstring(args['image_file'].read(), np.uint8), cv2.IMREAD_COLOR)
+            img = cv2.cvtColor(cv2.imdecode(np.fromstring(args['image_file'].read(), np.uint8), cv2.IMREAD_COLOR), cv2.COLOR_BGR2RGB)
             # Make all we need with model
             file = io.BytesIO()
-            Image.fromarray(img).save(file, ext)
+            Image.fromarray(img, 'RGB').save(file, 'jpeg')
             file.seek(0)
             return send_file(file,
                              as_attachment=True,
-                             attachment_filename='annotate.' + ext,
-                             mimetype='image/' + ext)
+                             attachment_filename='annotate.jpeg',
+                             mimetype='image/jpeg')
         else:
             abort(400, 'error when get the image file')
         return {'status': 'Done'}
