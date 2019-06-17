@@ -15,11 +15,18 @@ app.config['BUNDLE_ERRORS'] = True
 api = Api(app, version="1.0", title="Back-end")
 CORS(app)
 
-
-data = reqparse.RequestParser()
-data.add_argument('email', type=str, required=True, location='args')
-data.add_argument('psw', type=str, required=True, location='args')
-
+# data = reqparse.RequestParser()
+# data.add_argument('email', type=str, required=True, location='args')
+# data.add_argument('psw', type=str, required=True, location='args')
+#
+#
+# @api.route('/signIn',  endpoint='with-parser')
+# class SignIn(Resource):
+#     @api.expect(data)
+#     def get(self):
+#         args = data.parse_args(strict=True)
+#         print(args['email'] + " " + args['psw'])
+#         return {'token': 'token'}
 
 image_file_upload = reqparse.RequestParser()
 image_file_upload.add_argument('image_file',
@@ -29,16 +36,7 @@ image_file_upload.add_argument('image_file',
                                help='image file')
 
 
-@api.route('/signIn',  endpoint='with-parser')
-class SignIn(Resource):
-    @api.expect(data)
-    def get(self):
-        args = data.parse_args(strict=True)
-        print(args['email'] + " " + args['psw'])
-        return {'token': 'token'}
-
-
-@api.route('/upload')
+@api.route('/predict')
 class MyFileUpload(Resource):
     @api.expect(image_file_upload)
     def post(self):
