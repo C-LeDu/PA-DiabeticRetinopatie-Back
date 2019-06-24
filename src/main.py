@@ -1,14 +1,14 @@
 import io
+
 import cv2
 import numpy as np
 from PIL import Image
 from flask import Flask
-from flask import send_file
+from flask import send_file, make_response
 from flask_cors import CORS
 from flask_restplus import Resource, Api, reqparse
 from flask_restplus import abort
 from werkzeug.datastructures import FileStorage
-from flask import Flask, render_template, request
 
 app = Flask(__name__)
 app.config['BUNDLE_ERRORS'] = True
@@ -36,43 +36,57 @@ image_file_upload.add_argument('image_file',
                                help='image file')
 
 
+def convert_values_to_file_name(values):
+    str_values = np.array2string(values, formatter={'float_kind': lambda x: "%.2f" % x})\
+        .replace("[[", "")\
+        .replace("]]", "")\
+        .replace(" ", "-")
+    return str(np.argmax(values)) + "_" + str_values + ".jpeg"
+
+
 @api.route('/predict')
 class MyFileUpload(Resource):
     @api.expect(image_file_upload)
     def post(self):
         args = image_file_upload.parse_args()
         if args['image_file'].mimetype == 'image/png' or args['image_file'].mimetype == 'image/jpeg':
-            img = cv2.cvtColor(cv2.imdecode(np.fromstring(args['image_file'].read(), np.uint8), cv2.IMREAD_COLOR), cv2.COLOR_BGR2RGB)
+            img = cv2.cvtColor(cv2.imdecode(np.fromstring(args['image_file'].read(), np.uint8), cv2.IMREAD_COLOR),
+                               cv2.COLOR_BGR2RGB)
+            img = cv2.resize(img, (256, 256))
             # Make all we need with model
             file = io.BytesIO()
             Image.fromarray(img, 'RGB').save(file, 'jpeg')
             file.seek(0)
-            return send_file(file,
-                             as_attachment=True,
-                             attachment_filename='annotate.jpeg',
-                             mimetype='image/jpeg')
+            values = np.random.dirichlet(np.ones(5), size=1)
+            response = make_response(send_file(file,
+                                               as_attachment=True,
+                                               attachment_filename=convert_values_to_file_name(values),
+                                               mimetype='image/jpeg'))
+            response.headers['Access-Control-Expose-Headers'] = 'Content-Disposition'
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            return response
         else:
             abort(400, 'error when get the image file')
         return {'status': 'Done'}
 
 
-@app.route('/form')
-def form():
-    return render_template('form.html')
-
-@app.route('/submitted', methods=['POST'])
-def submitted_form():
-    name = request.form['name']
-    email = request.form['email']
-    site = request.form['site_url']
-    comments = request.form['comments']
-
-    return render_template(
-        'submitted_form.html',
-        name=name,
-        email=email,
-        site=site,
-        comments=comments)
+# @app.route('/form')
+# def form():
+#     return render_template('form.html')
+#
+# @app.route('/submitted', methods=['POST'])
+# def submitted_form():
+#     name = request.form['name']
+#     email = request.form['email']
+#     site = request.form['site_url']
+#     comments = request.form['comments']
+#
+#     return render_template(
+#         'submitted_form.html',
+#         name=name,
+#         email=email,
+#         site=site,
+#         comments=comments)
 
 if __name__ == '__main__':
     app.run(debug=True)
