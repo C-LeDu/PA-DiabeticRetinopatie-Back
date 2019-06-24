@@ -1,0 +1,9 @@
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: /predict
+  static_dir: static
+- url: /.*
+  script: main.app
