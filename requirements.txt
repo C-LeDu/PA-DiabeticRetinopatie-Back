@@ -3,3 +3,6 @@ numpy
 opencv-python
 Flask==0.12.2
 Werkzeug<0.13.0,>=0.12.0
+flask-restplus
+Flask-Cors
+python_version > '3.6'
