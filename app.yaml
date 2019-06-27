@@ -1,4 +1,7 @@
+application: retinopathy-diabetic-api
 runtime: python37
+api_version: 1
+threadsafe: yes
 
 handlers:
   # This configures Google App Engine to serve the files in the app's static
