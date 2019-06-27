@@ -1,4 +1,3 @@
-application: retinopathy-diabetic-api
 runtime: python37
 api_version: 1
 threadsafe: yes
