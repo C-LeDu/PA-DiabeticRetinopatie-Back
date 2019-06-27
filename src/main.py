@@ -1,6 +1,6 @@
 import io
 
-import cv2
+# import cv2
 import numpy as np
 from PIL import Image
 from flask import Flask
@@ -50,14 +50,13 @@ class MyFileUpload(Resource):
     def post(self):
         args = image_file_upload.parse_args()
         if args['image_file'].mimetype == 'image/png' or args['image_file'].mimetype == 'image/jpeg':
-            img = cv2.cvtColor(cv2.imdecode(np.fromstring(args['image_file'].read(), np.uint8), cv2.IMREAD_COLOR),
-                               cv2.COLOR_BGR2RGB)
-            img = cv2.resize(img, (256, 256))
+            img = Image.open(args['image_file'].stream)
+            img.thumbnail((256, 256), Image.ANTIALIAS)
             # Make all we need with model
             file = io.BytesIO()
-            Image.fromarray(img, 'RGB').save(file, 'jpeg')
+            img.save(file, 'jpeg')
             file.seek(0)
-            values = np.random.dirichlet(np.ones(5), size=1)
+            values = np.random.dirichlet(np.ones(2), size=1)
             response = make_response(send_file(file,
                                                as_attachment=True,
                                                attachment_filename=convert_values_to_file_name(values),
