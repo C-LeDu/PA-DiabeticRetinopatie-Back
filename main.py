@@ -50,7 +50,7 @@ class MyFileUpload(Resource):
     def post(self):
         args = image_file_upload.parse_args()
         if args['image_file'].mimetype == 'image/png' or args['image_file'].mimetype == 'image/jpeg':
-            img = Image.open(args['image_file'].stream)
+            img = Image.open(args['image_file'].stream).convert('RGB')
             img.thumbnail((256, 256), Image.ANTIALIAS)
             # Make all we need with model
             file = io.BytesIO()
