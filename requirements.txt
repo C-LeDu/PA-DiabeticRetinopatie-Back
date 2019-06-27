@@ -1,7 +1,6 @@
 pillow >= 4
 numpy
-opencv-python
-Flask==0.12.2
+Flask==1.0.2
 Werkzeug<0.13.0,>=0.12.0
 flask-restplus
 Flask-Cors
