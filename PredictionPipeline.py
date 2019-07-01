@@ -10,6 +10,7 @@ from keras.layers import BatchNormalization
 from keras.layers import GlobalAveragePooling2D, Dense, Dropout, Input, Conv2D, multiply, Lambda
 from keras.models import Model
 from skimage import color
+from skimage import img_as_ubyte
 from tensorflow.python.keras import backend as Kt
 
 
@@ -20,12 +21,14 @@ class PredictionPipeline:
 
     def __init__(self):
         self.model = self.model_creator(self.in_shape, self.class_nb, self.weight_path)
+        self.graph = tf.get_default_graph()
 
     def predict_image(self, path):
-        img = self.open_image(path)
-        prediction = self.model.predict(np.expand_dims(img, axis=0))
-        img_heatmap = self.grad_cam(img, prediction)
-        return prediction, Image.fromarray(img_heatmap)
+        with self.graph.as_default():
+            img = self.open_image(path)
+            prediction = self.model.predict(np.expand_dims(img, axis=0))
+            img_heatmap = self.grad_cam(img, prediction)
+            return prediction, Image.fromarray(img_as_ubyte(img_heatmap))
 
     @staticmethod
     def pre_processing(X):
