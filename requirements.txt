@@ -9,3 +9,4 @@ flask-restplus
 Flask-Cors
 tensorflow==1.13.1
 keras==2.2.4
+gunicorn==19.9.0

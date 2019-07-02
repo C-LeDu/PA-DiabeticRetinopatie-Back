@@ -12,6 +12,7 @@ from flask_restplus import Resource, Api, reqparse
 from flask_restplus import abort
 from werkzeug.datastructures import FileStorage
 
+import config
 from PredictionPipeline import PredictionPipeline
 
 app = Flask(__name__)
@@ -81,4 +82,4 @@ class MyFileUpload(Resource):
 
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=8080, debug=True)
+    app.run(host='127.0.0.1', port=config.PORT, debug=config.DEBUG_MODE)
