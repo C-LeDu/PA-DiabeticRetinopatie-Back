@@ -4,6 +4,8 @@ basic_scaling:
   max_instances: 1
   idle_timeout: 10m
 
+entrypoint: gunicorn -b :$PORT main:app --timeout 300
+
 handlers:
   # This configures Google App Engine to serve the files in the app's static
   # directory.
