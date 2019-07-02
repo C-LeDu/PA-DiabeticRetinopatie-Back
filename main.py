@@ -1,6 +1,4 @@
 import io
-import os
-import uuid
 
 import keras
 import numpy as np
@@ -45,22 +43,17 @@ class MyFileUpload(Resource):
         args = image_file_upload.parse_args()
         if args['image_file'].mimetype == 'image/png' or args['image_file'].mimetype == 'image/jpeg':
             img = Image.open(args['image_file'].stream).convert('RGB')
-            img.thumbnail((512, 512), Image.ANTIALIAS)
-            path = "tmp/" + str(uuid.uuid4())+".jpeg"
-            img.save(path, "JPEG")
             # Make all we need with model
-            values, img = PP.predict_image(path)
+            values, img = PP.predict_image(img)
             file = io.BytesIO()
             img.save(file, 'jpeg')
             file.seek(0)
-            # values = np.random.dirichlet(np.ones(2), size=1)
             response = make_response(send_file(file,
                                                as_attachment=True,
                                                attachment_filename=convert_values_to_file_name(values),
                                                mimetype='image/jpeg'))
             response.headers['Access-Control-Expose-Headers'] = 'Content-Disposition'
             response.headers['Access-Control-Allow-Origin'] = '*'
-            os.remove(path)
             return response
         else:
             abort(400, 'error when get the image file')

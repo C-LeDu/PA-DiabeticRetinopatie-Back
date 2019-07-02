@@ -32,14 +32,13 @@ class PredictionPipeline:
 
     @staticmethod
     def pre_processing(X):
-        color_mode = 'rgb'
         out_size = (512, 512)
 
         with tf.name_scope('image_augmentation'):
             with tf.name_scope('input'):
-                X = tf.image.decode_png(tf.read_file(X), channels=3 if color_mode == 'rgb' else 0)
+                X = np.asarray(X)
+                X = tf.convert_to_tensor(X, np.float64)
                 X = tf.image.resize_images(X, out_size)
-            with tf.name_scope('augmentation'):
                 return preprocess_input(X)
 
     @staticmethod
@@ -79,8 +78,8 @@ class PredictionPipeline:
         retina_model.load_weights(weight_path)
         return retina_model
 
-    def open_image(self, path):
-        img = self.pre_processing(path)
+    def open_image(self, img):
+        img = self.pre_processing(img)
         sess = Kt.get_session()
         img = sess.run(img)
         img = np.copy(img)
